@@ -1,0 +1,154 @@
+" Use pathogen:
+call pathogen#infect()
+filetype plugin indent on
+
+
+color default                   " add in colorscheme
+set background=dark             " Default to a dark background for themes
+set noincsearch                 " turn off Janus's incremental search
+set ts=4 sts=4 sw=4 expandtab   " 4 tab spaces
+set visualbell                  " don't beep
+set noerrorbells                " don't beep
+
+" set the leader key
+let mapleader = ","
+noremap <leader>e :NERDTreeToggle<CR>
+noremap <leader>/ :NERDCommenterToggle
+
+" f5 brings up buffer list
+nnoremap <F5> :buffers<CR>:buffer<Space>
+
+" lusty juggler with \l
+noremap <leader>l :LustyJuggler<cr>
+
+" switch quickly from window to window and maximize the window with ^j and ^k
+map <C-J> <C-W>j<C-W>_
+map <C-K> <C-W>k<C-W>_ 
+
+" set the tab top bar
+set showtabline=2
+
+" move tabs to the end for new, single buffers (exclude splits)
+autocmd BufNew * if winnr('$') == 1 | tabmove99 | endif
+
+" Nerdtree settings
+let NERDTreeQuitOnOpen = 0
+
+nnoremap <Leader>d :let NERDTreeQuitOnOpen = 1<bar>NERDTreeToggle<CR>
+nnoremap <Leader>D :let NERDTreeQuitOnOpen = 0<bar>NERDTreeToggle<CR>
+
+" New tab
+map  <C-l> :tabn<CR>
+map  <C-h> :tabp<CR>
+
+" Quit if nerdtree is the last buffer
+function! NERDTreeQuit()
+  redir => buffersoutput
+  silent buffers
+  redir END
+"                     1BufNo  2Mods.     3File           4LineNo
+  let pattern = '^\s*\(\d\+\)\(.....\) "\(.*\)"\s\+line \(\d\+\)$'
+  let windowfound = 0
+
+  for bline in split(buffersoutput, "\n")
+    let m = matchlist(bline, pattern)
+
+    if (len(m) > 0)
+      if (m[2] =~ '..a..')
+        let windowfound = 1
+      endif
+    endif
+  endfor
+
+  if (!windowfound)
+    quitall
+  endif
+endfunction
+autocmd WinEnter * call NERDTreeQuit()
+
+set autoindent
+
+" Statusline setup
+" statusline
+" cf the default statusline: %<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+" format markers:
+"   %< truncation point
+"   %n buffer number
+"   %f relative path to file
+"   %m modified flag [+] (modified), [-] (unmodifiable) or nothing
+"   %r readonly flag [RO]
+"   %y filetype [ruby]
+"   %= split point for left and right justification
+"   %-35. width specification
+"   %l current line number
+"   %L number of lines in buffer
+"   %c current column number
+"   %V current virtual column number (-n), if different from %c
+"   %P percentage through buffer
+"   %) end of width specification
+" set statusline=%<\ %n:%f\ %m%r%y%=%-35.(line:\ %l\ of\ %L,\ col:\ %c%V\ (%P)%)
+
+
+set statusline=%F%m%r%h%w
+set statusline+=%=
+set statusline+=TYPE:%Y\ 
+set statusline+=FMT:%{&ff}\ 
+"set statusline+=ASCII:\%03.3b\ 
+"set statusline+=HEX:\%02.2B\ 
+set statusline+=L:%05l/%L\ 
+set statusline+=C:%03v\ 
+set statusline+=%p%%\ 
+
+set laststatus=2
+
+
+" relative numbers and shortcut
+set ruler
+" Toggle line number mode.
+function! g:ToggleNuMode()
+    if(&rnu == 1)
+        set nu
+    else
+        set rnu
+    endif
+endfunc
+nnoremap <C-I> :call g:ToggleNuMode()<cr>
+
+" Load the hemisu theme for gui
+"if &t_Co > 2 || has("gui_running")
+"    syntax on
+"    colorscheme hemisu
+"endif
+
+"Simple Window management
+" http://www.agillo.net/simple-vim-window-management/
+function! WinMove(key) 
+  let t:curwin = winnr()
+  exec "wincmd ".a:key
+  if (t:curwin == winnr()) "we havent moved
+    if (match(a:key,'[jk]')) "were we going up/down
+      wincmd v
+    else 
+      wincmd s
+    endif
+    exec "wincmd ".a:key
+  endif
+endfunction
+ 
+map <leader>h              :call WinMove('h')<cr>
+map <leader>k              :call WinMove('k')<cr>
+map <leader>l              :call WinMove('l')<cr>
+map <leader>j              :call WinMove('j')<cr>
+
+map <leader>wc :wincmd q<cr>
+map <leader>wr <C-W>r
+
+map <leader>H              :wincmd H<cr>
+map <leader>K              :wincmd K<cr>
+map <leader>L              :wincmd L<cr>
+map <leader>J              :wincmd J<cr>
+
+" nmap <left>  :3wincmd <<cr>
+" nmap <right> :3wincmd ><cr>
+" nmap <up>    :3wincmd +<cr>
+" nmap <down>  :3wincmd -<cr>
