@@ -32,7 +32,7 @@ set showtabline=2
 autocmd BufNew * if winnr('$') == 1 | tabmove99 | endif
 
 " Nerdtree settings
-let NERDTreeQuitOnOpen = 0
+" let NERDTreeQuitOnOpen = 0
 
 nnoremap <Leader>d :let NERDTreeQuitOnOpen = 1<bar>NERDTreeToggle<CR>
 nnoremap <Leader>D :let NERDTreeQuitOnOpen = 0<bar>NERDTreeToggle<CR>
@@ -68,39 +68,58 @@ autocmd WinEnter * call NERDTreeQuit()
 
 set autoindent
 
-" Statusline setup
-" statusline
-" cf the default statusline: %<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
-" format markers:
-"   %< truncation point
-"   %n buffer number
-"   %f relative path to file
-"   %m modified flag [+] (modified), [-] (unmodifiable) or nothing
-"   %r readonly flag [RO]
-"   %y filetype [ruby]
-"   %= split point for left and right justification
-"   %-35. width specification
-"   %l current line number
-"   %L number of lines in buffer
-"   %c current column number
-"   %V current virtual column number (-n), if different from %c
-"   %P percentage through buffer
-"   %) end of width specification
-" set statusline=%<\ %n:%f\ %m%r%y%=%-35.(line:\ %l\ of\ %L,\ col:\ %c%V\ (%P)%)
-
-
-set statusline=%F%m%r%h%w
-set statusline+=%=
-set statusline+=TYPE:%Y\ 
-set statusline+=FMT:%{&ff}\ 
-"set statusline+=ASCII:\%03.3b\ 
-"set statusline+=HEX:\%02.2B\ 
-set statusline+=L:%05l/%L\ 
-set statusline+=C:%03v\ 
-set statusline+=%p%%\ 
+" " Statusline setup
+" " statusline
+" " cf the default statusline: %<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+" " format markers:
+" "   %< truncation point
+" "   %n buffer number
+" "   %f relative path to file
+" "   %m modified flag [+] (modified), [-] (unmodifiable) or nothing
+" "   %r readonly flag [RO]
+" "   %y filetype [ruby]
+" "   %= split point for left and right justification
+" "   %-35. width specification
+" "   %l current line number
+" "   %L number of lines in buffer
+" "   %c current column number
+" "   %V current virtual column number (-n), if different from %c
+" "   %P percentage through buffer
+" "   %) end of width specification
+" " set statusline=%<\ %n:%f\ %m%r%y%=%-35.(line:\ %l\ of\ %L,\ col:\ %c%V\ (%P)%)
+" 
+" 
+" set statusline =\ %n\ %*            "buffer number
+" 
+" set statusline +=%{&ff}%*            "file format
+" set statusline +=%y%*                "file type
+" " set statusline +=%F%m%r%h%w
+" 
+" set statusline +=\ %<%F%*            "full path
+" set statusline +=%m%*                "modified flag
+" 
+" set statusline +=\ %{fugitive#statusline()}
+" set statusline +=%=
+" "set statusline+=TYPE:%y\ 
+" "set statusline+=FMT:%{&ff}\ 
+" "set statusline+=ASCII:\%03.3b\ 
+" "set statusline+=HEX:\%02.2B\ 
+" "set statusline+=L:%05l/%L\ 
+" set statusline +=%4v\ %*             "virtual column number
+" set statusline +=%=%5l%*             "current line
+" set statusline +=/%L%*\                "total lines
+" set statusline +=%p%%\ 
+" 
+" 
+" "hi User1 guifg=#eea040 guibg=#222222
+" "hi User2 guifg=#dd3333 guibg=#222222
+" "hi User3 guifg=#ff66ff guibg=#222222
+" "hi User4 guifg=#a0ee40 guibg=#222222
+" "hi User5 guifg=#eeee40 guibg=#222222
+" Removed above from vim-powerline
 
 set laststatus=2
-
+let g:Powerline_symbols = 'fancy'
 
 " relative numbers and shortcut
 set ruler
@@ -152,3 +171,93 @@ map <leader>J              :wincmd J<cr>
 " nmap <right> :3wincmd ><cr>
 " nmap <up>    :3wincmd +<cr>
 " nmap <down>  :3wincmd -<cr>
+
+" Reselect visual block after indent:
+" vnoremap < <gv 
+" vnoremap > >gv 
+
+" Make Y behave like other capitals
+nnoremap Y y$
+
+" Force Saving Files that Require Root Permission
+cmap w!! %!sudo tee > /dev/null %
+
+" Set formatting to use par
+set formatprg=par
+
+" move a line of text using ALT+[jk], indent with ALT+[hl]
+" nnoremap <A-j> :m+<CR>==
+" nnoremap <A-k> :m-2<CR>==
+" nnoremap <A-h> <<
+" nnoremap <A-l> >>
+" inoremap <A-j> <Esc>:m+<CR>==gi
+" inoremap <A-k> <Esc>:m-2<CR>==gi
+" inoremap <A-h> <Esc><<`]a
+" inoremap <A-l> <Esc>>>`]a
+" vnoremap <A-j> :m'>+<CR>gv=gv
+" vnoremap <A-k> :m-2<CR>gv=gv
+" vnoremap <A-h> <gv
+" vnoremap <A-l> >gv
+set textwidth=0
+
+" Hide files that vim won't open for controlp
+let ctrlp_filter_greps = "".
+    \ "egrep -iv '\\.(" .
+    \ "jar|class|swp|swo|log|so|o|pyc|jpe?g|png|gif|mo|po" .
+    \ ")$' | " .
+    \ "egrep -v '^(\\./)?(" .
+    \ "deploy/|lib/|classes/|libs/|deploy/vendor/|.git/|.hg/|.svn/|.*migrations/" .
+    \ ")'"
+
+let my_ctrlp_git_command = "" .
+    \ "cd %s && git ls-files | " .
+    \ ctrlp_filter_greps
+
+if has("unix")
+    let my_ctrlp_user_command = "" .
+    \ "find %s '(' -type f -or -type l ')' -maxdepth 15 -not -path '*/\\.*/*' | " .
+    \ ctrlp_filter_greps
+endif
+
+let g:ctrlp_user_command = ['.git/', my_ctrlp_git_command, my_ctrlp_user_command]
+
+" CTags functions
+set tags=./tags,./../tags,./../../tags,./*/tags,/var/www/haven/tags
+let Tlist_Ctags_Cmd="/usr/bin/ctags"
+let Tlist_WinWidth=50
+map <F4> :TlistToggle<cr>
+map <F8> :!/usr/bin/ctags -f /var/www/haven/tags -h ".php" -R --exclude="\.git" --totals=yes --tag-relative=yes --PHP-kinds=+cf --regex-PHP='/abstract class ([^ ]*)/\1/c/' --regex-PHP='/interface ([^ ]*)/\1/c/' --regex-PHP='/(public \|static \|abstract \|protected \|private )+function ([^ (]*)/\1/f/'<cr>
+" set the names of flags
+let tlist_php_settings = 'php;c:class;f:function;d:constant'
+" close all folds except for current file
+let Tlist_File_Fold_Auto_Close = 1
+" make tlist pane active when opened
+let Tlist_GainFocus_On_ToggleOpen = 1
+" width of window
+let Tlist_WinWidth = 40
+" close tlist when a selection is made
+let Tlist_Close_On_Select = 1
+
+
+" c-\ open the definition in a new tab
+map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
+" alt-] open the definition in a verticle slit
+map <A-]> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
+
+" omni completion
+filetype plugin on
+set ofu=syntaxcomplete#Complete
+"let g:neocomplcache_enable_at_startup = 1
+
+" map  gq :diffoffh:q
+" map  gg :Gdiff
+
+set autoindent
+set smartindent
+set smarttab
+
+" open ctrl-p files in a tab if you hit t or e
+let g:ctrlp_prompt_mappings = {
+  \ 'AcceptSelection("e")': [],
+  \ 'AcceptSelection("t")': ['<cr>', '<c-m>'],
+  \ }
